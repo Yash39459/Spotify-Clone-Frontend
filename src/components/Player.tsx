@@ -11,7 +11,6 @@ const Player = () => {
     setIsPlaying,
     nextSong,
     prevSong,
-
     song,
   } = useSongData();
 
@@ -21,6 +20,7 @@ const Player = () => {
   const [progress, setProgress] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
 
+  // Set up event listeners on the audio element
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -42,6 +42,7 @@ const Player = () => {
     };
   }, [song]);
 
+  // Toggle play/pause
   const handlePlayPause = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -53,6 +54,7 @@ const Player = () => {
     }
   };
 
+  // Change volume handler
   const volumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value) / 100;
     setVolume(newVolume);
@@ -61,6 +63,7 @@ const Player = () => {
     }
   };
 
+  // Seek (duration) change handler
   const durationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = (parseFloat(e.target.value) / 100) * duration;
     if (audioRef.current) {
@@ -69,9 +72,11 @@ const Player = () => {
     setProgress(newTime);
   };
 
+  // Fetch the song when selectedSong changes
   useEffect(() => {
     fetchSingleSong();
   }, [selectedSong]);
+
   return (
     <div>
       {song && (
@@ -80,7 +85,7 @@ const Player = () => {
             <img
               src={song.thumbnail ? song.thumbnail : "/download.png"}
               className="w-12"
-              alt=""
+              alt="Song Thumbnail"
             />
             <div className="hidden md:block">
               <p>{song.title}</p>
@@ -98,12 +103,12 @@ const Player = () => {
                 min="0"
                 max="100"
                 className="progress-bar w-[120px] md:w-[300px]"
-                value={(progress / duration) * 100 || 0}
+                value={(duration ? (progress / duration) * 100 : 0) || 0}
                 onChange={durationChange}
               />
             </div>
             <div className="flex justify-center items-center gap-3">
-              <span className="cursor-pointer" onClick={prevSong}>
+              <span className="cursor-pointer" onClick={() => prevSong()}>
                 <GrChapterPrevious />
               </span>
 
@@ -113,7 +118,8 @@ const Player = () => {
               >
                 {isPlaying ? <FaPause /> : <FaPlay />}
               </button>
-              <span className="cursor-pointer" onClick={nextSong}>
+
+              <span className="cursor-pointer" onClick={() => nextSong()}>
                 <GrChapterNext />
               </span>
             </div>
@@ -122,9 +128,9 @@ const Player = () => {
             <input
               type="range"
               className="w-16 md:w-32"
-              min={"0"}
-              max={"100"}
-              step={"0.01"}
+              min="0"
+              max="100"
+              step="0.01"
               value={volume * 100}
               onChange={volumeChange}
             />
@@ -136,3 +142,6 @@ const Player = () => {
 };
 
 export default Player;
+
+
+

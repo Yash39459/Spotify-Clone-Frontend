@@ -36,8 +36,8 @@ interface SongContextType {
   setSelectedSong: (id: string) => void;
   albums: Album[];
   fetchSingleSong: () => Promise<void>;
-  nextSong: void;
-  prevSong: void;
+  nextSong: () => void; // fixed: declared as a function
+  prevSong: () => void; // fixed: declared as a function
   albumSong: Song[];
   albumData: Album | null;
   fetchAlbumsongs: (id: string) => Promise<void>;
@@ -53,11 +53,14 @@ interface SongProviderProps {
 
 export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
   const [songs, setSongs] = useState<Song[]>([]);
-
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedSong, setSelectedSong] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [song, setSong] = useState<Song | null>(null);
+  const [index, setIndex] = useState<number>(0);
+  const [albumSong, setAlbumSong] = useState<Song[]>([]);
+  const [albumData, setAlbumData] = useState<Album | null>(null);
 
   const fetchSongs = useCallback(async () => {
     setLoading(true);
@@ -74,8 +77,6 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
       setLoading(false);
     }
   }, []);
-
-  const [song, setSong] = useState<Song | null>(null);
 
   const fetchSingleSong = useCallback(async () => {
     if (!selectedSong) return;
@@ -101,9 +102,8 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const [index, setIndex] = useState<number>(0);
-
   const nextSong = useCallback(() => {
+    if (songs.length === 0) return;
     if (index === songs.length - 1) {
       setIndex(0);
       setSelectedSong(songs[0].id.toString());
@@ -114,14 +114,12 @@ export const SongProvider: React.FC<SongProviderProps> = ({ children }) => {
   }, [index, songs]);
 
   const prevSong = useCallback(() => {
+    if (songs.length === 0) return;
     if (index > 0) {
       setIndex((prev) => prev - 1);
       setSelectedSong(songs[index - 1].id.toString());
     }
   }, [index, songs]);
-
-  const [albumSong, setAlbumSong] = useState<Song[]>([]);
-  const [albumData, setAlbumData] = useState<Album | null>(null);
 
   const fetchAlbumsongs = useCallback(async (id: string) => {
     setLoading(true);
